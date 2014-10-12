@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+#
+# This script utilises the standard Open311 way of getting updates on reports
+# (by fetching all reports for a body and looking for updates). If possible,
+# please use the extension explained at
+# https://github.com/mysociety/FixMyStreet/wiki/Open311-FMS---Proposed-differences-to-Open311
+# and the fetch-comments/send-comments scripts.
+
+use strict;
+use warnings;
+use Open311::GetUpdates;
+use FixMyStreet::App;
+
+# FIXME - make this configurable and/or better
+my $system_user = FixMyStreet::App->model('DB::User')->find_or_create(
+    {
+        email => FixMyStreet::App->config->{'CONTACT_EMAIL'},
+        name => 'System User',
+    }
+);
+
+my $body_list = FixMyStreet::App->model('DB::Body');
+
+my $update = Open311::GetUpdates->new(
+    body_list => $body_list,
+    system_user  => $system_user
+)->get_updates;
